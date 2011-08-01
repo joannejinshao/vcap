@@ -23,7 +23,10 @@ class AppPackage
       dir = unpack_upload
       synchronize_pool_with(dir)
       path = AppPackage.repack_app_in(dir, tmpdir, :zip)
+      #CloudController.logger.debug "path #{path}"
       zip_path = save_package(path) if path
+      #CloudController.logger.debug "zip path #{path}"
+
     end
   ensure
     FileUtils.rm_rf(tmpdir)

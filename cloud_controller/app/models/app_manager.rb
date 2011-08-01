@@ -297,6 +297,8 @@ class AppManager
 
     staging_plugin_dir = Rails.root.join('staging', app.framework.to_s)
 
+    # XXX - ADD a jave runtime plugin
+    # add content to java/plugin.rb
     unless File.exists?(staging_plugin_dir)
       raise CloudError.new(CloudError::APP_INVALID_FRAMEWORK, app.framework)
     end

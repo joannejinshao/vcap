@@ -1,0 +1,13 @@
+---
+name: "java"
+runtimes:
+  - "java":
+      description: "Java 6"
+      version: "1.6"
+      executable: "java"
+      default: true
+detection:
+  - "*.jar": true # TODO - this thinks everything with an XML file is Spring
+
+
+# vim: filetype=yaml
