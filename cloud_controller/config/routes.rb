@@ -50,6 +50,9 @@ CloudController::Application.routes.draw do
   # download app files from a DEA instance
   get 'apps/:name/instances/:instance_id/files'       => 'apps#files'
   get 'apps/:name/instances/:instance_id/files/*path' => 'apps#files'
+  
+  get     'custom_services'       => 'custom_services#list',        :as => :custom_service_list
+  #get     'custom_services/:name' => 'custom_services#get',         :as => :custom_service_get
 
   # Index route should be last.
   root :to => "default#index"

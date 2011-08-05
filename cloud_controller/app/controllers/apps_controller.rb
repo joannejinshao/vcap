@@ -189,6 +189,9 @@ class AppsController < ApplicationController
       CloudController.logger.debug "Failed to save new app, app invalid"
       raise CloudError.new(CloudError::APP_INVALID)
     end
+    
+    save_custom_service(app)
+    save_custom_service_binding(app)
 
     # This needs to be called after the app is saved, but before staging.
     update_app_services(app)
@@ -347,4 +350,32 @@ class AppsController < ApplicationController
       raise CloudError.new(CloudError::ACCOUNT_NOT_ENOUGH_MEMORY, "#{mem_quota}M")
     end
   end
+  
+  def save_custom_service(app)
+    return unless body_params && body_params[:isService]
+    custom_service = ::CustomService.new(:user => user, :app => app)
+    begin
+      custom_service.save!
+    rescue
+      CloudController.logger.debug "Failed to save custom service, app invalid"
+      raise CloudError.new(CloudError::APP_INVALID)
+    end    
+  end
+  
+  def save_custom_service_binding(app)
+    return unless body_params && body_params[:cService]
+    services = body_params[:cService]
+    services.each do |value|
+      app = App.find_by_name(value)
+      custom_service = app.custom_service
+      custom_service_binding = ::CustomServiceBinding.new(:user => user, :app => app, :custom_service => custom_service)
+      begin
+        custom_service_binding.save!
+      rescue
+        CloudController.logger.debug "Failed to save custom service binding"
+        raise CloudError.new(CloudError::APP_INVALID)
+      end      
+    end    
+  end
+  
 end

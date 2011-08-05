@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110521014004) do
+ActiveRecord::Schema.define(:version => 20110804062009) do
 
   create_table "app_collaborations", :force => true do |t|
     t.integer  "app_id"
@@ -62,6 +62,21 @@ ActiveRecord::Schema.define(:version => 20110521014004) do
 
   add_index "binding_tokens", ["service_config_id"], :name => "index_binding_tokens_on_service_config_id"
   add_index "binding_tokens", ["uuid"], :name => "index_binding_tokens_on_uuid", :unique => true
+
+  create_table "custom_service_bindings", :force => true do |t|
+    t.integer  "app_id"
+    t.integer  "custom_service_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "custom_services", :force => true do |t|
+    t.integer  "app_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "routes", :force => true do |t|
     t.integer  "app_id"

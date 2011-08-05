@@ -543,6 +543,13 @@ class AppManager
         :credentials => sb.credentials,
       }
     end
+    data[:custom_services] = app.custom_service_bindings.map do |csb|
+      cs = csb.custom_service
+      capp = cs.app
+      { :name   => capp.name,
+        :uris   => capp.mapped_urls
+      }
+    end
     data[:limits] = app.limits
     data[:env] = app.environment_variables
     data[:users] = [app.owner.email]  # XXX - should we collect all collabs here?

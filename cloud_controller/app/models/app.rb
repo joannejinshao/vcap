@@ -9,6 +9,8 @@ class App < ActiveRecord::Base
   has_many :service_bindings, :dependent => :destroy
   has_many :service_configs, :through => :service_bindings
   has_many :routes, :dependent => :destroy
+  has_one  :custom_service, :dependent => :destroy
+  has_many :custom_service_bindings, :dependent => :destroy
 
   before_validation :normalize_legacy_staging_strings!
 
