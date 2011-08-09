@@ -30,7 +30,36 @@ class JavaPlugin < StagingPlugin
     full_jar_file = Dir.glob('app/*.jar').first
     jar_file = full_jar_file.split("/").last 
     state = "echo \"{\\\"state\\\": \\\"RUNNING\\\"}\" >> ../java.state"
-    return "#{state} \n java -jar #{jar_file} -port $PORT"
+    command = "#{state} \n java -jar #{jar_file}"
+    if environment[:args]
+      environment[:args].each  do |key, value|
+        if key.to_s == "PORT" then
+          command << " -port $PORT"
+        else
+          command << " -" << key.to_s << " " << value 
+        end 
+      end   
+     
+    end
+=begin
+    if environment[:args]
+      if environment[:args][:PORT]
+        command << " -port $PORT"
+      end
+
+      environment[:args].each  do |key, value|
+        if key.to_s == "PORT" then
+          command << " -port $PORT"
+        else
+          command << " " << key.to_s << " " << value
+        end 
+      end   
+     
+    end
+=end  
+
+    #return "#{state} \n java -jar #{jar_file} -port $PORT"
+    command
   end
 
   
