@@ -481,6 +481,7 @@ module DEA
       droplet_id = message_json['droplet']
       instance_index = message_json['index']
       services = message_json['services']
+      custom_services = message_json['custom_services']
       version = message_json['version']
       bits_file = message_json['executableFile']
       bits_uri = message_json['executableUri']
@@ -599,7 +600,7 @@ module DEA
           system("chmod -R g-rwx #{instance_dir}")
         end
 
-        app_env = setup_instance_env(instance, app_env, services)
+        app_env = setup_instance_env(instance, app_env, services, custom_services)
 
         # Add a bit of overhead here for JVM semantics where request is for heap, not total process.
         mem_kbytes = ((mem * 1024) * 1.125).to_i
@@ -969,6 +970,11 @@ module DEA
       end
       svcs_hash.to_json
     end
+    
+    def create_custom_services_for_env(custom_services=[])
+      custom_services.to_json      
+    end
+    
 
     # The format used by VMC_SERVICES
     def create_legacy_services_for_env(services=[])
@@ -997,12 +1003,13 @@ module DEA
       env_hash.to_json
     end
 
-    def setup_instance_env(instance, app_env, services)
-      env = []
+    def setup_instance_env(instance, app_env, services, custom_services)
+      env = []     
 
       env << "HOME=#{instance[:dir]}"
       env << "VCAP_APPLICATION='#{create_instance_for_env(instance)}'"
       env << "VCAP_SERVICES='#{create_services_for_env(services)}'"
+      env << "VCAP_CUSTOM_SERVICES='#{create_custom_services_for_env(custom_services)}'"
       env << "VCAP_APP_HOST='#{@local_ip}'"
       env << "VCAP_APP_PORT='#{instance[:port]}'"
 

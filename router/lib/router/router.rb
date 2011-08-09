@@ -40,7 +40,17 @@ class Router
         return unless uris = msg_hash[:uris]
         uris.each { |uri| unregister_droplet(uri, msg_hash[:host], msg_hash[:port]) }
       }
-    end
+      NATS.subscribe('router.instances') { |msg, reply|        
+        uris = JSON.parse(msg)
+        instances = []
+        uris.each do |uri|          
+          lookup_droplet(uri).each do |droplet|
+            instances << droplet
+          end
+        end       
+        NATS.publish(reply, instances.to_json) 
+      }   
+    end 
 
     def setup_sweepers
       @rps_timestamp = Time.now

@@ -366,8 +366,8 @@ class AppsController < ApplicationController
     return unless body_params && body_params[:cService]
     services = body_params[:cService]
     services.each do |value|
-      app = App.find_by_name(value)
-      custom_service = app.custom_service
+      custom_service_app = App.find_by_name(value)
+      custom_service = custom_service_app.custom_service
       custom_service_binding = ::CustomServiceBinding.new(:user => user, :app => app, :custom_service => custom_service)
       begin
         custom_service_binding.save!

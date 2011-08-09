@@ -210,10 +210,11 @@ class AppManager
   def started
     once_app_is_staged do
       save_staged_app_state # Bumps runcount
-      message = new_message
+      custom_start
+      #message = new_message
       # Start a single instance on staging failure to display staging errors to user
-      num_to_start = app.staging_failed? ? 1 : app.instances
-      start_instances(message, 0, num_to_start)
+      #num_to_start = app.staging_failed? ? 1 : app.instances
+      #start_instances(message, 0, num_to_start)
     end
   end
 
@@ -553,8 +554,50 @@ class AppManager
     data[:limits] = app.limits
     data[:env] = app.environment_variables
     data[:users] = [app.owner.email]  # XXX - should we collect all collabs here?
-    data
+    data    
   end
+  
+  
+  def custom_start
+    message = new_message   
+    get_custom_service_instances(message, 0)    
+  end
+  
+  def get_custom_service_instances(data, index=0)
+    custom_services = data[:custom_services]
+    custom_service = custom_services[index]
+    length = custom_services.length
+    # If the app does not depend on any custom services
+    if length<=0 then
+      num_to_start = app.staging_failed? ? 1 : app.instances
+      start_instances(data, 0, num_to_start)
+    else
+      NATS.request('router.instances', custom_service[:uris].to_json) { |response|
+        droplets = JSON.parse(response)
+        puts "Got a response: '#{response}'"
+        instances = []
+        droplets.each do |droplet|
+          instance = {
+            :host => droplet['host'],
+            :port => droplet['port']
+          }
+          instances << instance
+        end
+        data[:custom_services][index] = {
+          :name => custom_service[:name],
+          :uris => custom_service[:uris],
+          :instances => instances
+        }
+        if (index+=1)<custom_services.length
+          get_custom_service_instances(data, index)
+        else
+          num_to_start = app.staging_failed? ? 1 : app.instances
+          start_instances(data, 0, num_to_start)
+        end
+      }
+    end
+  end
+  
 
   def app_still_exists?
     @app && @app = App.uncached { App.find_by_id(@app.id) }
