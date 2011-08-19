@@ -43,10 +43,13 @@ class Router
       NATS.subscribe('router.instances') { |msg, reply|        
         uris = JSON.parse(msg)
         instances = []
-        uris.each do |uri|          
-          lookup_droplet(uri).each do |droplet|
-            instances << droplet
-          end
+        uris.each do |uri|  
+          droplet = lookup_droplet(uri)        
+          if droplet
+            lookup_droplet(uri).each do |droplet|
+              instances << droplet
+            end
+          end          
         end       
         NATS.publish(reply, instances.to_json) 
       }   
@@ -161,8 +164,8 @@ class Router
       nil
     end
 
-    def lookup_droplet(url)
-      @droplets[url]
+    def lookup_droplet(url)      
+      @droplets[url]      
     end
 
     def register_droplet(url, host, port, tags)

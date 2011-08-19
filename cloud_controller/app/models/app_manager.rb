@@ -166,7 +166,7 @@ class AppManager
       end
       CloudController.logger.debug("[HealthManager] Starting #{indices.length} missing instances for app: #{app.id}")
       # FIXME - Check capacity
-      indices.each { |i| start_instance(message, i) }
+      indices.each { |i| custom_start_instance(message, i, 0) }
     when /STOP/i
       # If HM detects older versions, let's clean up here versus suppressing
       # and leaving old versions in the system. HM will start new ones if needed.
@@ -210,8 +210,9 @@ class AppManager
   def started
     once_app_is_staged do
       save_staged_app_state # Bumps runcount
-      custom_start
-      #message = new_message
+      message = new_message
+      num_to_start = app.staging_failed? ? 1 : app.instances
+      custom_start_instances(message, 0, num_to_start, 0)      
       # Start a single instance on staging failure to display staging errors to user
       #num_to_start = app.staging_failed? ? 1 : app.instances
       #start_instances(message, 0, num_to_start)
@@ -226,7 +227,7 @@ class AppManager
     return unless app.started?
     message = new_message
     if (delta > 0)
-      start_instances(message, app.instances - delta, app.instances)
+      custom_start_instances(message, app.instances - delta, app.instances, 0)
     else
       indices = (app.instances...(app.instances - delta)).collect { |i| i }
       stop_instances(indices)
@@ -558,23 +559,16 @@ class AppManager
   end
   
   
-  def custom_start
-    message = new_message   
-    get_custom_service_instances(message, 0)    
-  end
-  
-  def get_custom_service_instances(data, index=0)
-    custom_services = data[:custom_services]
+  def custom_start_instances(message, instance_index, number_to_start, index=0)
+    custom_services = message[:custom_services]
     custom_service = custom_services[index]
     length = custom_services.length
     # If the app does not depend on any custom services
-    if length<=0 then
-      num_to_start = app.staging_failed? ? 1 : app.instances
-      start_instances(data, 0, num_to_start)
+    if length<=0 then      
+      start_instances(message, instance_index, number_to_start)
     else
       NATS.request('router.instances', custom_service[:uris].to_json) { |response|
-        droplets = JSON.parse(response)
-        puts "Got a response: '#{response}'"
+        droplets = JSON.parse(response)        
         instances = []
         droplets.each do |droplet|
           instance = {
@@ -583,19 +577,54 @@ class AppManager
           }
           instances << instance
         end
-        data[:custom_services][index] = {
+        message[:custom_services][index] = {
           :name => custom_service[:name],
           :uris => custom_service[:uris],
           :instances => instances
         }
         if (index+=1)<custom_services.length
-          get_custom_service_instances(data, index)
-        else
-          num_to_start = app.staging_failed? ? 1 : app.instances
-          start_instances(data, 0, num_to_start)
+          custom_start_instances(message, instance_index, number_to_start, index)
+        else          
+          start_instances(message, instance_index, number_to_start)
         end
       }
-    end
+    end   
+  end
+  
+  def custom_start_instance(message, i, index=0)    
+    custom_services = message[:custom_services]    
+    custom_service = custom_services[index]   
+    length = custom_services.length    
+    if length<=0 then          
+      start_instance(message, i)
+    else
+      CloudController.logger.debug("uris #{custom_service[:uris].to_json}")
+      NATS.request('router.instances', custom_service[:uris].to_json) { |response|
+        droplets = JSON.parse(response)       
+        instances = []
+        droplets.each do |droplet|
+          instance = {
+            :host => droplet['host'],
+            :port => droplet['port']
+          }
+          instances << instance
+        end
+        message[:custom_services][index] = {
+          :name => custom_service[:name],
+          :uris => custom_service[:uris],
+          :instances => instances
+        }
+        if (index+=1)<custom_services.length          
+          custom_start_instance(message, i, index)
+        else         
+          start_instance(message, i)          
+        end
+      }
+    end    
+  end
+  
+  def get_custom_service_instances(data, index=0)
+   
   end
   
 
