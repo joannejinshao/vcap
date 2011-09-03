@@ -583,7 +583,8 @@ class AppManager
         droplets.each do |droplet|
           instance = {
             :host => droplet['host'],
-            :port => droplet['port']
+            :port => droplet['port'],
+            :ports => droplet['ports']
           }
           instances << instance
         end
@@ -615,7 +616,8 @@ class AppManager
         droplets.each do |droplet|
           instance = {
             :host => droplet['host'],
-            :port => droplet['port']
+            :port => droplet['port'],
+            :ports => droplet['ports']
           }
           instances << instance
         end

@@ -33,7 +33,7 @@ class Router
       NATS.subscribe('router.register') { |msg|
         msg_hash = Yajl::Parser.parse(msg, :symbolize_keys => true)
         return unless uris = msg_hash[:uris]
-        uris.each { |uri| register_droplet(uri, msg_hash[:host], msg_hash[:port], msg_hash[:tags]) }
+        uris.each { |uri| register_droplet(uri, msg_hash[:host], msg_hash[:port], msg_hash[:tags], msg_hash[:ports]) }
       }
       NATS.subscribe('router.unregister') { |msg|
         msg_hash = Yajl::Parser.parse(msg, :symbolize_keys => true)
@@ -168,7 +168,7 @@ class Router
       @droplets[url]      
     end
 
-    def register_droplet(url, host, port, tags)
+    def register_droplet(url, host, port, tags, ports)
       return unless host && port
       url.downcase!
       droplets = @droplets[url] || []
@@ -177,6 +177,7 @@ class Router
         # If we already now about them just update the timestamp..
         if(droplet[:host] == host && droplet[:port] == port)
           droplet[:timestamp] = Time.now
+          droplet[:ports] = ports
           return
         end
       }

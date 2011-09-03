@@ -1191,6 +1191,7 @@ module DEA
                      :dea  => VCAP::Component.uuid,
                      :host => @local_ip,
                      :port => instance[:port],
+                     :ports =>instance[:ports],
                      :uris => options[:uris] || instance[:uris],
                      :tags => {:framework => instance[:framework], :runtime => instance[:runtime]}
                    }.to_json)
