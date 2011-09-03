@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'rexml/document'  
+include REXML  
+
+port = ARGV[0]
+path = ARGV[1]
+destination_xpath = ARGV[2]
+exit 1 unless port && path && destination_xpath
+puts "#{port} #{path} #{destination_xpath}"
+
+full_path = File.join(File.dirname(__FILE__),"app", path)
+File.open(full_path, 'r') do |file|
+  doc = Document.new(file)  
+  doc.elements[destination_xpath.dup].text = port.dup 
+  File.open(full_path, 'w') do |xml_file|
+    doc.write(xml_file)
+  end
+end
+
+

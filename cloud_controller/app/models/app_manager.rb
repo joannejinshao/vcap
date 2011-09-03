@@ -552,6 +552,16 @@ class AppManager
         :uris   => capp.mapped_urls
       }
     end
+    if(app.requirements)
+      data[:requirements] = app.requirements.map do |requirement|
+        {
+          :type => requirement[:type],
+          :index => requirement[:index],
+          :name => requirement[:name]
+        }
+      end
+    end
+    
     data[:limits] = app.limits
     data[:env] = app.environment_variables
     data[:users] = [app.owner.email]  # XXX - should we collect all collabs here?
@@ -629,7 +639,9 @@ class AppManager
   
 
   def app_still_exists?
-    @app && @app = App.uncached { App.find_by_id(@app.id) }
+    # TODO modified by shaojin  why the latter part?
+    #@app && @app = App.uncached { App.find_by_id(@app.id) }
+    @app
   end
 
   def fiber_sleep(secs)

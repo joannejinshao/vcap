@@ -492,6 +492,29 @@ module DEA
       users = message_json['users']
       runtime = message_json['runtime']
       framework = message_json['framework']
+      requirements = message_json['requirements'] 
+      ports = Array.new
+      
+      if(requirements)
+        requirements.each do |requirement|
+          if(requirement['type']=='port')
+            portelement = Hash.new(nil)
+            portelement['name'] = requirement['name']
+            portelement['value'] = nil
+            portelement['index'] = requirement['index']           
+            ports << portelement
+          end
+        end
+      end
+      
+      if(!requirements || ports.size==0)
+        portelement = Hash.new(nil)
+        portelement['name'] = 'PORT'
+        portelement['value'] = nil
+        portelement['index'] = '0'
+        ports << portelement
+      end
+      
 
       # Limits processing
       mem     = DEFAULT_APP_MEM
@@ -558,15 +581,30 @@ module DEA
       end
 
       start_operation = proc do
-        port = VCAP.grab_ephemeral_port
+        arguments = ""
+        
+        ports.each do |port|
+          port['value'] = VCAP.grab_ephemeral_port          
+          if(port['index'].to_i == 0)
+            argname = 'p'
+            instance[:port] = port['value']
+          else
+            argname = (port['index'].to_i + 96).chr
+          end          
+          arguments += " -" + argname + " " + port['value'].to_s 
+        end
+        
+        
+        puts "#{arguments}"
 
         @logger.debug('Completed download')
-        @logger.info("Starting up instance #{instance[:log_id]} on port:#{port}")
+        @logger.info("Starting up instance #{instance[:log_id]} on port:#{instance[:port]}")
 
         @logger.debug("Clients: #{@num_clients}")
         @logger.debug("Reserved Memory Usage: #{@reserved_mem} MB of #{@max_memory} MB TOTAL")
 
-        instance[:port] = port
+        
+        instance[:ports] = ports
 
         manifest_file = File.join(instance[:dir], 'droplet.yaml')
         manifest = {}
@@ -621,7 +659,7 @@ module DEA
             process.send_data("umask 077\n")
           end
           app_env.each { |env| process.send_data("export #{env}\n") }
-          process.send_data("#{@dea_ruby} ./prepare true ./startup -p #{port}\n")
+          process.send_data("#{@dea_ruby} ./prepare true ./startup" + arguments + "\n")
           process.send_data("exit\n")
         end
 
