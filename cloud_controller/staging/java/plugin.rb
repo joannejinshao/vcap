@@ -9,7 +9,7 @@ class JavaPlugin < StagingPlugin
   def copy_resource(dir)
     resource_dir = File.join(File.dirname(__FILE__), 'resources')
     FileUtils.cp(File.join(resource_dir, "droplet.yaml"), dir)
-    FileUtils.cp(File.join(resource_dir, "propogate_requirements"), dir)
+    FileUtils.cp(File.join(resource_dir, "propogate_ports"), dir)
   end
 
   def stage_application
@@ -46,24 +46,24 @@ env > env.log
 
     scriptPort = ""
     temp = ""
-    if environment[:requirements]
+    if environment[:ports]
       defPart = ""
       opts = ":"
       casePart = ""
       missPart = ""
       destinationScript = ""
 
-      environment[:requirements].each do |requirement|
-        temp += requirement.to_s
-        if requirement[:type].to_s == "port" then
-          portName = requirement[:name]
+      environment[:ports].each do |port|
+        
+        if port[:type].to_s == "port" then
+          portName = port[:name]
           defPart += <<-DEFPART
 #{portName}=-1
           DEFPART
-          if(requirement[:index]=="0")
+          if(port[:index]=="0")
             indexalpha ='p'
           else
-            indexalpha = (requirement[:index].to_i + 96).chr
+            indexalpha = (port[:index].to_i + 96).chr
           end
           opts += indexalpha + ":"
           casePart += <<-CASEPART
@@ -77,11 +77,11 @@ if [ $#{portName} -lt 0 ] ; then
   exit 1
 fi
           MISSPART
-          destinations = requirement[:destinations]
+          destinations = port[:destinations]
           destinations.each do |destination|
             if(destination[:type]=="xml")
               propogate_script = <<-PROP
-ruby propogate_requirements $#{portName} #{destination[:path]} #{destination[:xpath]}
+ruby propogate_ports $#{portName} #{destination[:path]} #{destination[:xpath]}
               PROP
             destinationScript += propogate_script
             elsif(destination[:type]=="cmd")

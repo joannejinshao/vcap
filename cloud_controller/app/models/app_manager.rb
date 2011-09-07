@@ -552,12 +552,12 @@ class AppManager
         :uris   => capp.mapped_urls
       }
     end
-    if(app.requirements)
-      data[:requirements] = app.requirements.map do |requirement|
+    if(app.ports)
+      data[:ports] = app.ports.map do |port|
         {
-          :type => requirement[:type],
-          :index => requirement[:index],
-          :name => requirement[:name]
+          :type => port[:type],
+          :index => port[:index],
+          :name => port[:name]
         }
       end
     end

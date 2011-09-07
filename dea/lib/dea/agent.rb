@@ -492,22 +492,9 @@ module DEA
       users = message_json['users']
       runtime = message_json['runtime']
       framework = message_json['framework']
-      requirements = message_json['requirements'] 
-      ports = Array.new
+      ports = message_json['ports']     
       
-      if(requirements)
-        requirements.each do |requirement|
-          if(requirement['type']=='port')
-            portelement = Hash.new(nil)
-            portelement['name'] = requirement['name']
-            portelement['value'] = nil
-            portelement['index'] = requirement['index']           
-            ports << portelement
-          end
-        end
-      end
-      
-      if(!requirements || ports.size==0)
+      if(!ports || ports.size==0)
         portelement = Hash.new(nil)
         portelement['name'] = 'PORT'
         portelement['value'] = nil

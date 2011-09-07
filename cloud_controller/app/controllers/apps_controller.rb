@@ -178,7 +178,7 @@ class AppsController < ApplicationController
     update_app_env(app)
     update_app_staging(app)
     update_app_args(app)
-    update_app_requirements(app)
+    update_app_ports(app)
     delta_instances = update_app_instances(app)
 
     changed = app.changed
@@ -290,9 +290,9 @@ class AppsController < ApplicationController
     app.args = body_params[:args]
   end
   
-  def update_app_requirements(app)
-    return unless body_params && body_params[:requirements]
-    app.requirements = body_params[:requirements]
+  def update_app_ports(app)
+    return unless body_params && body_params[:ports]
+    app.ports = body_params[:ports]
   end
 
   def update_app_state(app)
