@@ -1,7 +1,6 @@
 class JavaPlugin < StagingPlugin
-  
+
   attr_accessor :suffix
-  
   def framework
     'java'
   end
@@ -31,13 +30,14 @@ class JavaPlugin < StagingPlugin
         command << " -" << key.to_s << " " << value
       end
     end
-    command    
+    command
   end
 
   private
+
   def startup_script
-    
-    vars = environment_hash  
+
+    vars = environment_hash
     @suffix = ""
 
     scriptEnv = <<-ENV
@@ -54,42 +54,37 @@ env > env.log
       destinationScript = ""
 
       environment[:ports].each do |port|
-        
-        if port[:type].to_s == "port" then
-          portName = port[:name]
-          defPart += <<-DEFPART
+        portName = port[:name]
+        defPart += <<-DEFPART
 #{portName}=-1
           DEFPART
-          if(port[:index]=="0")
-            indexalpha ='p'
-          else
-            indexalpha = (port[:index].to_i + 96).chr
-          end
-          opts += indexalpha + ":"
-          casePart += <<-CASEPART
+        
+        indexalpha = (port[:index] + 97).chr
+        
+        opts += indexalpha + ":"
+        casePart += <<-CASEPART
     #{indexalpha})
       #{portName}=$OPTARG
       ;;
-          CASEPART
-          missPart += <<-MISSPART
+        CASEPART
+        missPart += <<-MISSPART
 if [ $#{portName} -lt 0 ] ; then
   echo "Missing or invalid port (-#{indexalpha})"
   exit 1
 fi
           MISSPART
-          destinations = port[:destinations]
-          destinations.each do |destination|
-            if(destination[:type]=="xml")
-              propogate_script = <<-PROP
-ruby propogate_ports $#{portName} #{destination[:path]} #{destination[:xpath]}
+        destination = port[:destination]
+        placeholder = destination[:placeholder]
+        if(destination[:type]=="file")
+          propogate_script = <<-PROP
+ruby propogate_ports $#{portName} #{destination[:path]} #{placeholder[1..-1]}
               PROP
-            destinationScript += propogate_script
-            elsif(destination[:type]=="cmd")
-              @suffix += "-#{portName} $#{portName}"
-            end
-          end
+        destinationScript += propogate_script
+        elsif(destination[:type]=="cmd")
+          @suffix += "-#{portName} $#{portName}"
         end
       end
+
       whileFormer = <<-WHILEFORMER
 while getopts "#{opts}" opt; do
   case $opt in
@@ -102,9 +97,8 @@ done
     end
     full_script = scriptEnv + scriptPort
 
-    
     generate_startup_script(vars) do
-      full_script      
+      full_script
     end
   end
 

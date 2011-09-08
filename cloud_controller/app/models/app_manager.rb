@@ -555,9 +555,9 @@ class AppManager
     if(app.ports)
       data[:ports] = app.ports.map do |port|
         {
-          :type => port[:type],
           :index => port[:index],
-          :name => port[:name]
+          :name => port[:name],
+          :primary => port[:primary]
         }
       end
     end
@@ -582,10 +582,10 @@ class AppManager
         instances = []
         droplets.each do |droplet|
           instance = {
-            :host => droplet['host'],
-            :port => droplet['port'],
-            :ports => droplet['ports']
-          }
+            :host => droplet['host'],            
+            :ports => droplet['ports'],
+            :port => droplet['port']
+          }         
           instances << instance
         end
         message[:custom_services][index] = {
@@ -615,10 +615,10 @@ class AppManager
         instances = []
         droplets.each do |droplet|
           instance = {
-            :host => droplet['host'],
-            :port => droplet['port'],
-            :ports => droplet['ports']
-          }
+            :host => droplet['host'],            
+            :ports => droplet['ports'],
+            :port => droplet['port']
+          }  
           instances << instance
         end
         message[:custom_services][index] = {

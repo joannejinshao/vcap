@@ -494,14 +494,6 @@ module DEA
       framework = message_json['framework']
       ports = message_json['ports']     
       
-      if(!ports || ports.size==0)
-        portelement = Hash.new(nil)
-        portelement['name'] = 'PORT'
-        portelement['value'] = nil
-        portelement['index'] = '0'
-        ports << portelement
-      end
-      
 
       # Limits processing
       mem     = DEFAULT_APP_MEM
@@ -570,19 +562,24 @@ module DEA
       start_operation = proc do
         arguments = ""
         
-        ports.each do |port|
-          port['value'] = VCAP.grab_ephemeral_port          
-          if(port['index'].to_i == 0)
-            argname = 'p'
-            instance[:port] = port['value']
-          else
-            argname = (port['index'].to_i + 96).chr
+        if(!ports || ports.size==0)
+          port = VCAP.grab_ephemeral_port
+          arguments += " -p " + port.to_s
+          instance[:port] = port
+        else
+          ports.each do |port|
+            port['value'] = VCAP.grab_ephemeral_port          
+            if(port['primary'])              
+              instance[:port] = port['value']
+            end
+            argname = (port['index'].to_i + 97).chr                     
+            arguments += " -" + argname + " " + port['value'].to_s 
           end          
-          arguments += " -" + argname + " " + port['value'].to_s 
-        end
+        end     
         
-        
-        puts "#{arguments}"
+        if(!instance[:port])
+          instance[:port]=-1
+        end        
 
         @logger.debug('Completed download')
         @logger.info("Starting up instance #{instance[:log_id]} on port:#{instance[:port]}")
