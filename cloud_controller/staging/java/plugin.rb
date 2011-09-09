@@ -21,10 +21,24 @@ class JavaPlugin < StagingPlugin
   end
 
   def start_command
-    full_jar_file = Dir.glob('app/*.jar').first
-    jar_file = full_jar_file.split("/").last
     state = "echo \"{\\\"state\\\": \\\"RUNNING\\\"}\" >> ../java.state \n"
-    command = "#{state}java -jar #{jar_file}"
+    full_jar_file = Dir.glob('app/*.jar').first
+    command = ""
+    if(full_jar_file)
+      jar_file = full_jar_file.split("/").last   
+      command = "#{state}java -jar #{jar_file}"
+    else
+      lib_path = environment[:main_class][:lib_path]
+      main = environment[:main_class][:main]
+      search_path = "app/" + lib_path + "/*.jar"
+      classpath = "."
+      Dir.glob(search_path).each do |file|
+        classpath += ":" + file[4..-1]
+      end
+      #classpath = ".:history_lib/commons-beanutils-core-1.8.3.jar:history_lib/commons-beanutils-1.8.3.jar:history_lib/commons-collections-3.2.1.jar:history_lib/ezmorph-1.0.6.jar:history_lib/commons-beanutils-bean-collections-1.8.3.jar:history_lib/json-lib-2.4-jdk15.jar:history_lib/commons-lang-2.5.jar:history_lib/commons-logging-1.1.1.jar:history_lib/commons-collections-testframework-3.2.1.jar"
+      command = "#{state}java -classpath #{classpath} #{main}"
+    end
+    
     if environment[:args]
       environment[:args].each  do |key, value|
         command << " -" << key.to_s << " " << value

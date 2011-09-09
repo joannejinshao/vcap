@@ -178,6 +178,7 @@ class AppsController < ApplicationController
     update_app_env(app)
     update_app_staging(app)
     update_app_args(app)    
+    update_app_main_class(app)
     delta_instances = update_app_instances(app)
 
     changed = app.changed
@@ -293,6 +294,11 @@ class AppsController < ApplicationController
     return unless body_params && body_params[:args]
     app.args = body_params[:args]
   end 
+  
+  def update_app_main_class(app)
+    return unless body_params && body_params[:main_class]
+    app.main_class = body_params[:main_class]
+  end
 
   def update_app_state(app)
     return if body_params.nil?
