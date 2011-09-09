@@ -177,8 +177,7 @@ class AppsController < ApplicationController
     update_app_mem(app)
     update_app_env(app)
     update_app_staging(app)
-    update_app_args(app)
-    update_app_ports(app)
+    update_app_args(app)    
     delta_instances = update_app_instances(app)
 
     changed = app.changed
@@ -194,10 +193,15 @@ class AppsController < ApplicationController
     
     save_custom_service(app)
     save_custom_service_binding(app)
+    save_app_ports(app)
 
     # This needs to be called after the app is saved, but before staging.
     update_app_services(app)
     app.save if app.changed?
+    
+    update_app_ports(app)
+    
+    ports = app.ports   
 
     # Process any changes that require action on out part here.
     manager = AppManager.new(app)
@@ -288,12 +292,7 @@ class AppsController < ApplicationController
   def update_app_args(app)
     return unless body_params && body_params[:args]
     app.args = body_params[:args]
-  end
-  
-  def update_app_ports(app)
-    return unless body_params && body_params[:ports]
-    app.ports = body_params[:ports]
-  end
+  end 
 
   def update_app_state(app)
     return if body_params.nil?
@@ -305,6 +304,43 @@ class AppsController < ApplicationController
     when /STOPPED/i
       app.state = 'STOPPED'
     end
+  end
+  
+=begin
+  def update_app_ports(app)
+    return unless body_params && body_params[:ports]    
+    body_params[:ports].each do |paramPort|
+      port = ::Port.new(
+        :name => paramPort[:name], 
+        :app => app, 
+        :primary => paramPort[:primary],
+        :index => paramPort[:index]),
+        :destination => paramPort[:destination]      
+    end    
+    
+  end
+=end  
+
+  def save_app_ports(app)
+    return unless body_params && body_params[:ports]    
+      body_params[:ports].each do |paramPort|
+        port = ::Port.new(
+          :name => paramPort[:name], 
+          :app => app, 
+          :primary => paramPort[:primary],
+          :index => paramPort[:index])
+        begin
+          port.save!
+        rescue
+          CloudController.logger.debug "Failed to save app ports"          
+        end        
+      end           
+  end
+  
+  
+  def update_app_ports(app)
+    return unless body_params && body_params[:ports]      
+    app.ports_with_destination = body_params[:ports]
   end
 
   # This is needed to support the legacy VMC client
@@ -389,5 +425,7 @@ class AppsController < ApplicationController
       end      
     end    
   end
+  
+  
   
 end

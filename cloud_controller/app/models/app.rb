@@ -11,6 +11,7 @@ class App < ActiveRecord::Base
   has_many :routes, :dependent => :destroy
   has_one  :custom_service, :dependent => :destroy
   has_many :custom_service_bindings, :dependent => :destroy
+  has_many :ports, :dependent => :destroy
 
   before_validation :normalize_legacy_staging_strings!
 
@@ -36,7 +37,7 @@ class App < ActiveRecord::Base
   validates_inclusion_of :state, :in => AppStates
   validates_inclusion_of :package_state, :in => PackageStates
   
-  attr_accessor :args, :ports
+  attr_accessor :args, :ports_with_destination
 
   def self.find_by_collaborator_and_id(user, app_id)
     App.joins(:app_collaborations).where(:app_collaborations => {:user_id => user.id}, :apps => {:id => app_id}).first
@@ -115,7 +116,7 @@ class App < ActiveRecord::Base
       :framework => framework,
       :runtime => runtime,
       :resources => resource_requirements,
-      :ports => @ports,
+      :ports => @ports_with_destination,
       :args => @args }
   end
 

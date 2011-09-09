@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110804062009) do
+ActiveRecord::Schema.define(:version => 20110908090605) do
 
   create_table "app_collaborations", :force => true do |t|
     t.integer  "app_id"
@@ -74,6 +74,15 @@ ActiveRecord::Schema.define(:version => 20110804062009) do
   create_table "custom_services", :force => true do |t|
     t.integer  "app_id"
     t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "ports", :force => true do |t|
+    t.string   "name"
+    t.boolean  "primary"
+    t.integer  "index"
+    t.integer  "app_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
