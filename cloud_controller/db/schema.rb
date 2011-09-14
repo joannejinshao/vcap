@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110908090605) do
+ActiveRecord::Schema.define(:version => 20110914055054) do
 
   create_table "app_collaborations", :force => true do |t|
     t.integer  "app_id"
@@ -20,6 +20,9 @@ ActiveRecord::Schema.define(:version => 20110908090605) do
   end
 
   add_index "app_collaborations", ["app_id", "user_id"], :name => "index_app_collaborations_on_app_id_and_user_id", :unique => true
+
+# Could not dump table "app_dependencies" because of following StandardError
+#   Unknown type 'app' for column 'consumer_id'
 
   create_table "apps", :force => true do |t|
     t.integer  "owner_id"
@@ -62,21 +65,6 @@ ActiveRecord::Schema.define(:version => 20110908090605) do
 
   add_index "binding_tokens", ["service_config_id"], :name => "index_binding_tokens_on_service_config_id"
   add_index "binding_tokens", ["uuid"], :name => "index_binding_tokens_on_uuid", :unique => true
-
-  create_table "custom_service_bindings", :force => true do |t|
-    t.integer  "app_id"
-    t.integer  "custom_service_id"
-    t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "custom_services", :force => true do |t|
-    t.integer  "app_id"
-    t.integer  "user_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "ports", :force => true do |t|
     t.string   "name"

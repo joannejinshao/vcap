@@ -53,3 +53,9 @@ group :test do
   gem 'sinatra'  # For service gateway shims
 end
 
+group :development do
+  gem "rails-erd"
+end
+
+
+

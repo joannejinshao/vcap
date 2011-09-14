@@ -545,11 +545,9 @@ class AppManager
         :credentials => sb.credentials,
       }
     end
-    data[:custom_services] = app.custom_service_bindings.map do |csb|
-      cs = csb.custom_service
-      capp = cs.app
-      { :name   => capp.name,
-        :uris   => capp.mapped_urls
+    data[:custom_services] = app.providers.map do |csb|     
+      { :name   => csb.name,
+        :uris   => csb.mapped_urls
       }
     end
     if(app.ports)

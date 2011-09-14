@@ -22,11 +22,6 @@ class User < ActiveRecord::Base
                                  " WHERE (apps.owner_id = #{id})" }
   # has_many :routes, :through => :apps
   
-  has_many :custom_services, :dependent => :destroy
-  
-  has_many :custom_service_bindings,
-           :through    => :apps
-
   validates_format_of :email, :with => RFC822::EmailFormat
   validates_uniqueness_of :email, :if => Proc.new {|o| !o.email.blank?}
   validates_presence_of :crypted_password

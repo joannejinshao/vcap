@@ -8,10 +8,19 @@ class App < ActiveRecord::Base
   has_many :collaborators, :through => :app_collaborations, :source => :user
   has_many :service_bindings, :dependent => :destroy
   has_many :service_configs, :through => :service_bindings
-  has_many :routes, :dependent => :destroy
-  has_one  :custom_service, :dependent => :destroy
-  has_many :custom_service_bindings, :dependent => :destroy
+  has_many :routes, :dependent => :destroy  
   has_many :ports, :dependent => :destroy
+
+  has_many :consumings, :foreign_key => "consumer_id",
+                        :class_name => "AppDependency",
+                        :dependent => :destroy  
+  has_many :providers, :through => :consumings  
+
+  has_many :providings, :foreign_key => "provider_id",
+                        :class_name => "AppDependency",
+                        :dependent => :destroy
+  has_many :consumers, :through => :providings
+  
 
   before_validation :normalize_legacy_staging_strings!
 
