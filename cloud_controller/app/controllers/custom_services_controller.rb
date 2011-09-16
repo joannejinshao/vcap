@@ -3,7 +3,7 @@ class CustomServicesController < ApplicationController
     svcs = Array.new
     apps = user.apps
     apps.each do |app|
-      if(app.consumers&&app.consumers.size>0)
+      if(app.consumers.size>0)
          svcs << app
       end
     end    

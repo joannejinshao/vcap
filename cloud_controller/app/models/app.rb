@@ -14,12 +14,15 @@ class App < ActiveRecord::Base
   has_many :consumings, :foreign_key => "consumer_id",
                         :class_name => "AppDependency",
                         :dependent => :destroy  
-  has_many :providers, :through => :consumings  
+  has_many :providers, :through => :consumings 
+  
+=begin 
 
   has_many :providings, :foreign_key => "provider_id",
                         :class_name => "AppDependency",
                         :dependent => :destroy
   has_many :consumers, :through => :providings
+=end
   
 
   before_validation :normalize_legacy_staging_strings!
@@ -525,6 +528,11 @@ class App < ActiveRecord::Base
     collab = AppCollaboration.find_by_app_id_and_user_id(self.id, user.id)
     collab.destroy if collab
   end
+  
+  def consumers
+    App.joins("INNER JOIN app_dependencies ON app_dependencies.consumer_id = apps.id").where("app_dependencies.provider_id = ?", self.id)
+  end
+    
 
   private
 
@@ -557,6 +565,7 @@ class App < ActiveRecord::Base
   def add_owner_as_collaborator
     ac = AppCollaboration.new(:user_id => self.owner_id, :app_id => self.id)
     ac.save!
-  end
+  end  
+  
 end
 

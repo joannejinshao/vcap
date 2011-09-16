@@ -405,36 +405,14 @@ class AppsController < ApplicationController
       raise CloudError.new(CloudError::ACCOUNT_NOT_ENOUGH_MEMORY, "#{mem_quota}M")
     end
   end
-=begin
-  def save_custom_service(app)
-    return unless body_params && body_params[:isService]
-    custom_service = ::CustomService.new(:user => user, :app => app)
-    begin
-      custom_service.save!
-    rescue
-      CloudController.logger.debug "Failed to save custom service, app invalid"
-      raise CloudError.new(CloudError::APP_INVALID)
-    end    
-  end
-=end
+
   
   def update_app_dependencies(app)
     return unless body_params && body_params[:cService]
     services = body_params[:cService]
     services.each do |value|
       provider_app = App.find_by_name(value)
-      app.providers << provider_app
-      provider_app.consumers << app      
-      begin
-        app.save!
-        provider_app.save!
-      rescue
-        CloudController.logger.debug "Failed to save app dependencies"
-        raise CloudError.new(CloudError::APP_INVALID)
-      end      
+      app.providers << provider_app        
     end    
-  end
-  
-  
-  
+  end  
 end
