@@ -532,6 +532,10 @@ class App < ActiveRecord::Base
   def consumers
     App.joins("INNER JOIN app_dependencies ON app_dependencies.consumer_id = apps.id").where("app_dependencies.provider_id = ?", self.id)
   end
+  
+  def cascade_consumers
+    App.joins("INNER JOIN app_dependencies ON app_dependencies.consumer_id = apps.id").where("app_dependencies.cascade = 't' AND app_dependencies.provider_id = ?", self.id)
+  end
     
 
   private
