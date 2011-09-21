@@ -1,4 +1,6 @@
 class GroupsController < ApplicationController
+  before_filter :find_group_by_name, :except => [:create]
+  
   def create
     name = body_params[:groupname]
     sequence = body_params[:appsequence]
@@ -18,4 +20,13 @@ class GroupsController < ApplicationController
         
     render :json => {:result => 'success'}, :status => 302
   end
+  
+  def get
+    render :json => @group.as_json
+  end
+  
+  def find_group_by_name
+    @group = Group.find_by_name(params[:name])
+    raise CloudError.new(CloudError::GROUP_NOT_FOUND) unless @group  
+  end  
 end
