@@ -16,15 +16,9 @@ class App < ActiveRecord::Base
                         :dependent => :destroy  
   has_many :providers, :through => :consumings 
   
-=begin 
-
-  has_many :providings, :foreign_key => "provider_id",
-                        :class_name => "AppDependency",
-                        :dependent => :destroy
-  has_many :consumers, :through => :providings
-=end
+  has_one :group_binding, :dependent => :destroy 
+  has_one :group, :through => :group_binding
   
-
   before_validation :normalize_legacy_staging_strings!
 
   after_create :add_owner_as_collaborator

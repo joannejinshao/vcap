@@ -52,7 +52,7 @@ CloudController::Application.routes.draw do
   get 'apps/:name/instances/:instance_id/files/*path' => 'apps#files'
   
   get     'custom_services'       => 'custom_services#list',        :as => :custom_service_list
-  post 'groups' =>'groups#create', :as => :group_create 
+  post    'groups'                => 'groups#create',                :as => :group_create 
   #get     'custom_services/:name' => 'custom_services#get',         :as => :custom_service_get
 
   # Index route should be last.

@@ -195,6 +195,7 @@ class AppsController < ApplicationController
     #save_custom_service(app)
     #save_custom_service_binding(app)
     update_app_dependencies(app)
+    update_app_group(app)
     save_app_ports(app)
 
     # This needs to be called after the app is saved, but before staging.
@@ -312,21 +313,6 @@ class AppsController < ApplicationController
       app.state = 'STOPPED'
     end
   end
-  
-=begin
-  def update_app_ports(app)
-    return unless body_params && body_params[:ports]    
-    body_params[:ports].each do |paramPort|
-      port = ::Port.new(
-        :name => paramPort[:name], 
-        :app => app, 
-        :primary => paramPort[:primary],
-        :index => paramPort[:index]),
-        :destination => paramPort[:destination]      
-    end    
-    
-  end
-=end  
 
   def save_app_ports(app)
     return unless body_params && body_params[:ports]    
@@ -348,6 +334,12 @@ class AppsController < ApplicationController
   def update_app_ports(app)
     return unless body_params && body_params[:ports]      
     app.ports_with_destination = body_params[:ports]
+  end
+  
+  def update_app_group(app)
+    return unless body_params && body_params[:groupName]      
+    group = Group.find_by_name(body_params[:groupName])
+    app.group = group
   end
 
   # This is needed to support the legacy VMC client
@@ -408,11 +400,12 @@ class AppsController < ApplicationController
 
   
   def update_app_dependencies(app)
-    return unless body_params && body_params[:cService]
-    services = body_params[:cService]
-    services.each do |value|
-      provider_app = App.find_by_name(value)
-      app.providers << provider_app        
+    return unless body_params && body_params[:dependencies]
+    services = body_params[:dependencies]
+    services.each do |key, value|
+      provider_app = App.find_by_name(key)
+      dependency = ::AppDependency.new(:provider => provider_app, :consumer => app, :cascade => value)
+      app.consumings << dependency      
     end    
   end  
 end

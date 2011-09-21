@@ -13,10 +13,7 @@ class CustomServicesController < ApplicationController
     svcs.each do |svc|
       svc_type = svc.framework
       ret[svc_type] ||= Array.new
-      ret[svc_type] << svc.name
-      #ret[svc_type][svc.app.name] ||= {}
-     # ret[svc_type][svc.name][svc.version] ||= {}
-      #ret[svc_type][svc.name][svc.version] = svc.as_legacy
+      ret[svc_type] << svc.name     
     end
     render :json => ret
   end 
