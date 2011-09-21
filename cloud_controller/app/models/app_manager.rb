@@ -148,7 +148,20 @@ class AppManager
 
   def health_manager_message_received(payload)
     CloudController.logger.debug("[HealthManager] Received #{payload[:op]} request for app #{app.id} - #{app.name}")
-
+    
+    provider_status = true    
+    app.providers.each do |provider|
+      break unless provider_status
+      if(provider.running_instances<=0)
+        provider_status = false
+      end     
+    end
+    
+    if(!provider_status)
+      CloudController.logger.debug("App provider hasn't been running!")
+      return
+    end
+    
     indices = payload[:indices]
     message = new_message
 
