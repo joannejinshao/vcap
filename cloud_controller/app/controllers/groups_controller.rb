@@ -22,7 +22,7 @@ class GroupsController < ApplicationController
   end
   
   def get
-    render :json => @group.as_json
+    render :json => @group.sequence
   end
   
   def find_group_by_name
