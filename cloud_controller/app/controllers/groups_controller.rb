@@ -22,7 +22,11 @@ class GroupsController < ApplicationController
   end
   
   def get
-    render :json => @group.sequence
+    response = {
+      :name => @group.name,
+      :sequence =>@group.sequence
+    }
+    render :json => response.to_json
   end
   
   def find_group_by_name
