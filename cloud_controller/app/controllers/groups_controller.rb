@@ -29,6 +29,11 @@ class GroupsController < ApplicationController
     render :json => response.to_json
   end
   
+  def delete     
+    @group.destroy
+    render :nothing => true, :status => 200
+  end
+  
   def find_group_by_name
     @group = Group.find_by_name(params[:name])
     raise CloudError.new(CloudError::GROUP_NOT_FOUND) unless @group  
