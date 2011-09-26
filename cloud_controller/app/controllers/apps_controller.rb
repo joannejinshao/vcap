@@ -41,6 +41,9 @@ class AppsController < ApplicationController
   end
 
   def delete
+    group = @app.group
+    group.sequence = group.sequence.gsub(/#{@app.name}:/, "")
+    group.save    
     @app.purge_all_resources!
     @app.destroy
     render :nothing => true, :status => 200
