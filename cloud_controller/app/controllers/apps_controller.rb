@@ -53,7 +53,7 @@ class AppsController < ApplicationController
     package = AppPackage.new(@app, app_bits, resources)
     @app.latest_bits_from(package)
     render :nothing => true, :status => 200
-  end
+  end  
 
   def download
     path = @app.package_path
@@ -63,6 +63,32 @@ class AppsController < ApplicationController
       raise CloudError.new(CloudError::APP_NOT_FOUND)
     end
   end
+  
+  # GET apps/:name/sequence
+  def sequence    
+    sequence = check_sequence(@app).uniq  
+    render :json => {:sequence => sequence}, :status => 200
+  end
+  
+  def check_sequence(app)
+    sequence = Array.new
+    sequence << app.name              
+    app.consumers.each do |consumer|
+      cascade = false
+      consumings = consumer.consumings
+      consumings.each do |dependency|
+        if(dependency.provider.name == app.name)
+          cascade = dependency.cascade
+        end
+      end
+      if(cascade)
+        sequence.concat(check_sequence(consumer))
+      end           
+    end    
+    sequence
+  end
+  
+  
 
   def download_staged
     app = App.find_by_id(params[:id])
