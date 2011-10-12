@@ -17,7 +17,8 @@ CloudController::Application.routes.draw do
   delete 'apps/:name'                => 'apps#delete',          :as => :app_delete
   put    'apps/:name/application'    => 'apps#upload',          :as => :app_upload
   get    'apps/:name/crashes'        => 'apps#crashes',         :as => :app_crashes
-  get    'apps/:name/sequence'       => 'apps#sequence',        :as => :app_sequence
+  get    'apps/:name/delete_sequence'       => 'apps#delete_sequence',        :as => :app_delete_sequence
+  get    'apps/:name/start_sequence'       => 'apps#start_sequence',        :as => :app_start_sequence
   post   'resources'                 => 'resource_pool#match',  :as => :resource_match
   get    'apps/:name/application'    => 'apps#download',        :as => :app_download
   get    'staged_droplets/:id/:hash' => 'apps#download_staged', :as => :app_download_staged

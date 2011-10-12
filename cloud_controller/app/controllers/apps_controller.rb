@@ -67,9 +67,16 @@ class AppsController < ApplicationController
     end
   end
   
-  # GET apps/:name/sequence
-  def sequence    
+  # GET apps/:name/delete_sequence
+  def delete_sequence    
     sequence = check_sequence(@app).uniq  
+    render :json => {:sequence => sequence}, :status => 200
+  end
+  
+  # GET apps/:name/start_sequence
+  def start_sequence
+    group = @app.group
+    sequence = group.sequence.split(/:/)
     render :json => {:sequence => sequence}, :status => 200
   end
   
