@@ -457,7 +457,7 @@ class App < ActiveRecord::Base
   end
 
   def needs_staging?
-    !(self.package_hash.blank? || self.staged?)
+    !(self.package_hash.blank? || self.staged? || self.stopped?)
   end
 
   def find_recent_crashes

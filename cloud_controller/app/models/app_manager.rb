@@ -563,7 +563,7 @@ class AppManager
         :uris   => csb.mapped_urls
       }
     end
-    if(app.ports)
+    #if app.ports
       data[:ports] = app.ports.map do |port|
         {
           :index => port[:index],
@@ -571,7 +571,7 @@ class AppManager
           :primary => port[:primary]
         }
       end
-    end
+    #end
     
     data[:limits] = app.limits
     data[:env] = app.environment_variables

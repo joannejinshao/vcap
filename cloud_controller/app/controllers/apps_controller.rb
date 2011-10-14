@@ -24,6 +24,12 @@ class AppsController < ApplicationController
 
   # PUT /apps/:name
   def update
+    # delete old ports before update
+    if @app.ports.size > 0
+      @app.ports.each do |oldports|
+        oldports.destroy
+      end
+    end 
     update_app_from_params(@app)
     render :nothing => true
   end
@@ -359,18 +365,21 @@ class AppsController < ApplicationController
 
   def save_app_ports(app)
     return unless body_params && body_params[:ports]    
-      body_params[:ports].each do |paramPort|
-        port = ::Port.new(
-          :name => paramPort[:name], 
-          :app => app, 
-          :primary => paramPort[:primary],
-          :index => paramPort[:index])
-        begin
-          port.save!
-        rescue
-          CloudController.logger.debug "Failed to save app ports"          
-        end        
-      end           
+    body_params[:ports].each do |paramPort|
+      port = ::Port.new(
+        :name => paramPort[:name], 
+        :app => app, 
+        :primary => paramPort[:primary],
+        :index => paramPort[:index])
+      app.ports << port
+=begin
+      begin
+        port.save!
+      rescue
+        CloudController.logger.debug "Failed to save app ports"          
+      end      
+=end  
+    end           
   end
   
   
