@@ -55,6 +55,7 @@ CloudController::Application.routes.draw do
   
   get     'custom_services'       => 'custom_services#list',        :as => :custom_service_list
   post    'groups'                => 'groups#create',               :as => :group_create 
+  get     'groups'                => 'groups#list',               :as => :group_list
   get     'groups/:name'          => 'groups#get',                  :as => :group_get
   delete  'groups/:name'          => 'groups#delete',               :as => :group_delete
   #get     'custom_services/:name' => 'custom_services#get',         :as => :custom_service_get

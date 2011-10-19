@@ -11,6 +11,8 @@ class User < ActiveRecord::Base
   has_many :apps_owned, :class_name => 'App', :foreign_key => :owner_id
 
   has_many :services # owned
+  
+  has_many :groups
 
   has_many :service_configs, :dependent => :destroy # provisioned
 

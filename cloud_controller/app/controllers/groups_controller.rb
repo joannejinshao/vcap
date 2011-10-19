@@ -1,5 +1,6 @@
 class GroupsController < ApplicationController
-  before_filter :find_group_by_name, :except => [:create]
+  before_filter :require_user
+  before_filter :find_group_by_name, :except => [:create, :list]
   
   def create
     name = body_params[:groupname]
@@ -19,6 +20,15 @@ class GroupsController < ApplicationController
     end
         
     render :json => {:result => 'success'}, :status => 302
+  end
+  
+  def list
+    groups = user.groups
+    result = Array.new
+    groups.each do |group|
+      result << {:name => group[:name], :sequence => group[:sequence]}
+    end
+     render :json => result
   end
   
   def get
