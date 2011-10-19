@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
 
   has_many :services # owned
   
-  has_many :groups
+  has_many :groups, :dependent => :destroy
 
   has_many :service_configs, :dependent => :destroy # provisioned
 

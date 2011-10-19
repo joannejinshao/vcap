@@ -8,7 +8,7 @@ class GroupsController < ApplicationController
     group = Group.find_by_name(name)
     
     if(!group)
-      group = ::Group.new(:name => name, :sequence => sequence)
+      group = ::Group.new(:name => name, :sequence => sequence, :user =>user)
     else
       group.sequence = sequence
     end
