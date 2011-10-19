@@ -48,8 +48,13 @@ class AppsController < ApplicationController
 
   def delete
     group = @app.group
-    group.sequence = group.sequence.gsub(/#{@app.name}:/, "")
-    group.save    
+    if group
+      group.sequence = group.sequence.gsub(/#{@app.name}:/, "")
+      group.save
+      if(group.sequence == "")
+        group.destroy
+      end        
+    end    
     @app.purge_all_resources!
     @app.destroy
     render :nothing => true, :status => 200

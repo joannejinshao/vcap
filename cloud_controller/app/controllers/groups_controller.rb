@@ -44,6 +44,18 @@ class GroupsController < ApplicationController
     render :nothing => true, :status => 200
   end
   
+  def remove_app
+    #remove group binding
+    appname = params[:appname]
+    app = ::App.find_by_name(appname)   
+    if app.group_binding
+      app.group_binding.destroy
+    end      
+    @group.sequence = @group.sequence.gsub(/#{appname}:/, "")
+    @group.save
+    render :nothing => true, :status => 200
+  end
+  
   def find_group_by_name
     @group = Group.find_by_name(params[:name])
     raise CloudError.new(CloudError::GROUP_NOT_FOUND) unless @group  
