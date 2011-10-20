@@ -42,7 +42,8 @@ class GroupsController < ApplicationController
   def post_status
     status = body_params[:status]
     @group.status = status
-    @group.save!
+    @group.save!    
+    render :json => {:result => 'success'}, :status => 302
   end
   
   def get_status
