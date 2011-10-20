@@ -59,6 +59,8 @@ CloudController::Application.routes.draw do
   get     'groups/:name'          => 'groups#get',                  :as => :group_get
   delete  'groups/:name'          => 'groups#delete',               :as => :group_delete
   get     'groups/:name/:appname'          => 'groups#remove_app',                  :as => :group_remove_app
+  post    'groups/:name/status'          => 'groups#post_status',                  :as => :group_post_status
+  get     'groups/:name/status'          => 'groups#get_status',                  :as => :group_get_status
   #get     'custom_services/:name' => 'custom_services#get',         :as => :custom_service_get
 
   # Index route should be last.

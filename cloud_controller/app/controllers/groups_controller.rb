@@ -39,6 +39,19 @@ class GroupsController < ApplicationController
     render :json => response.to_json
   end
   
+  def post_status
+    status = body_params[:status]
+    @group.status = status
+    @group.save!
+  end
+  
+  def get_status
+    response = {
+      :status => @group.status
+    }
+    render :json => response.to_json
+  end
+  
   def delete     
     @group.destroy
     render :nothing => true, :status => 200
