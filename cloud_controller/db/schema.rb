@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111020001509) do
+ActiveRecord::Schema.define(:version => 20111109115333) do
 
   create_table "app_collaborations", :force => true do |t|
     t.integer  "app_id"
@@ -23,6 +23,14 @@ ActiveRecord::Schema.define(:version => 20111020001509) do
 
 # Could not dump table "app_dependencies" because of following StandardError
 #   Unknown type 'app' for column 'consumer_id'
+
+  create_table "app_runtimes", :force => true do |t|
+    t.string   "main"
+    t.string   "lib_path"
+    t.integer  "app_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "apps", :force => true do |t|
     t.integer  "owner_id"
@@ -89,6 +97,9 @@ ActiveRecord::Schema.define(:version => 20111020001509) do
     t.integer  "app_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "type"
+    t.string   "path"
+    t.string   "placeholder"
   end
 
   create_table "routes", :force => true do |t|

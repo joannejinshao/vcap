@@ -24,12 +24,6 @@ class AppsController < ApplicationController
 
   # PUT /apps/:name
   def update
-    # delete old ports before update
-    if @app.ports.size > 0
-      @app.ports.each do |oldports|
-        oldports.destroy
-      end
-    end 
     update_app_from_params(@app)
     render :nothing => true
   end
@@ -244,21 +238,15 @@ class AppsController < ApplicationController
     rescue
       CloudController.logger.debug "Failed to save new app, app invalid"
       raise CloudError.new(CloudError::APP_INVALID)
-    end
+    end    
     
-    #save_custom_service(app)
-    #save_custom_service_binding(app)
     update_app_dependencies(app)
     update_app_group(app)
-    save_app_ports(app)
+    update_app_ports(app)
 
     # This needs to be called after the app is saved, but before staging.
     update_app_services(app)
-    app.save if app.changed?
-    
-    update_app_ports(app)
-    
-    ports = app.ports   
+    app.save if app.changed?     
 
     # Process any changes that require action on out part here.
     manager = AppManager.new(app)
@@ -352,8 +340,11 @@ class AppsController < ApplicationController
   end 
   
   def update_app_main_class(app)
-    return unless body_params && body_params[:main_class]
-    app.main_class = body_params[:main_class]
+    return unless body_params && body_params[:mainclass]
+    app_runtime = ::AppRuntime.new(
+      :main => body_params[:mainclass][:main],
+      :lib_path => body_params[:mainclass][:lib_path])
+    app.app_runtime = app_runtime    
   end
 
   def update_app_state(app)
@@ -368,30 +359,23 @@ class AppsController < ApplicationController
     end
   end
 
-  def save_app_ports(app)
-    return unless body_params && body_params[:ports]    
+  def update_app_ports(app)
+    return unless body_params && body_params[:ports]
     body_params[:ports].each do |paramPort|
+      destination = paramPort[:destination]
       port = ::Port.new(
         :name => paramPort[:name], 
         :app => app, 
         :primary => paramPort[:primary],
-        :index => paramPort[:index])
-      app.ports << port
-=begin
-      begin
-        port.save!
-      rescue
-        CloudController.logger.debug "Failed to save app ports"          
-      end      
-=end  
-    end           
+        :index => paramPort[:index],
+        :port_type => destination[:type],
+        :path => destination[:path],
+        :placeholder => destination[:placeholder])      
+        app.ports << port
+     end           
   end
   
-  
-  def update_app_ports(app)
-    return unless body_params && body_params[:ports]      
-    app.ports_with_destination = body_params[:ports]
-  end
+
   
   def update_app_group(app)
     return unless body_params && body_params[:groupName]      

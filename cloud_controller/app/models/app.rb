@@ -19,6 +19,8 @@ class App < ActiveRecord::Base
   has_one :group_binding, :dependent => :destroy 
   has_one :group, :through => :group_binding
   
+  has_one :app_runtime, :dependent => :destroy
+  
   before_validation :normalize_legacy_staging_strings!
 
   after_create :add_owner_as_collaborator
@@ -43,7 +45,7 @@ class App < ActiveRecord::Base
   validates_inclusion_of :state, :in => AppStates
   validates_inclusion_of :package_state, :in => PackageStates
   
-  attr_accessor :args, :ports_with_destination, :main_class
+  attr_accessor :args
 
   def self.find_by_collaborator_and_id(user, app_id)
     App.joins(:app_collaborations).where(:app_collaborations => {:user_id => user.id}, :apps => {:id => app_id}).first
@@ -122,9 +124,9 @@ class App < ActiveRecord::Base
       :framework => framework,
       :runtime => runtime,
       :resources => resource_requirements,
-      :ports => @ports_with_destination,
+      :ports => ports.to_a,
       :args => @args,
-      :main_class => @main_class }
+      :mainclass => app_runtime }
   end
 
   # Returns an array of the URLs that point to this application

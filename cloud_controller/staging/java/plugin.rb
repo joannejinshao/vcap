@@ -23,9 +23,10 @@ class JavaPlugin < StagingPlugin
   def start_command
     state = "echo \"{\\\"state\\\": \\\"RUNNING\\\"}\" >> ../java.state \n"    
     command = ""
-    if(environment[:main_class])
-      lib_path = environment[:main_class][:lib_path]
-      main = environment[:main_class][:main]
+    if(environment[:mainclass])
+      app_runtime = environment[:mainclass][:app_runtime]
+      lib_path = app_runtime[:lib_path]
+      main = app_runtime[:main]
       search_path = "app/" + lib_path + "/*.jar"
       classpath = "."
       Dir.glob(search_path).each do |file|
@@ -67,12 +68,12 @@ env > env.log
       destinationScript = ""
 
       environment[:ports].each do |port|
-        portName = port[:name]
+        portName = port[:port][:name]
         defPart += <<-DEFPART
 #{portName}=-1
           DEFPART
         
-        indexalpha = (port[:index] + 97).chr
+        indexalpha = (port[:port][:index] + 97).chr
         
         opts += indexalpha + ":"
         casePart += <<-CASEPART
@@ -86,14 +87,14 @@ if [ $#{portName} -lt 0 ] ; then
   exit 1
 fi
           MISSPART
-        destination = port[:destination]
-        placeholder = destination[:placeholder]
-        if(destination[:type]=="file")
+        #destination = port[:destination]
+        placeholder = port[:port][:placeholder]
+        if(port[:port][:port_type]=="file")
           propogate_script = <<-PROP
-ruby propogate_ports $#{portName} #{destination[:path]} #{placeholder[1..-1]}
+ruby propogate_ports $#{portName} #{port[:port][:path]} #{placeholder[1..-1]}
               PROP
         destinationScript += propogate_script
-        elsif(destination[:type]=="cmd")
+        elsif(port[:port][:port_type]=="cmd")
           @suffix += "-#{portName} $#{portName}"
         end
       end
